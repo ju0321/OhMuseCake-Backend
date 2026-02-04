@@ -1,0 +1,112 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.5.6'
+    id 'io.spring.dependency-management' version '1.1.7'
+    id 'com.diffplug.spotless' version '6.19.0'
+}
+
+group = 'com.sku'
+version = '0.0.1-SNAPSHOT'
+description = 'kiosk'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Web
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    // Test
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // DB
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    runtimeOnly 'com.mysql:mysql-connector-j'
+    implementation 'org.flywaydb:flyway-core'
+    implementation 'org.flywaydb:flyway-mysql'
+
+    // Lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    // Swagger openapi-ui
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.1'
+
+    // Spring Security
+    //implementation 'org.springframework.boot:spring-boot-starter-security'
+    //testImplementation 'org.springframework.security:spring-security-test'
+
+    // Crawling
+    //implementation 'org.jsoup:jsoup:1.17.1'
+
+    //Image Convert
+    implementation "com.sksamuel.scrimage:scrimage-core:4.0.32"
+    implementation "com.sksamuel.scrimage:scrimage-webp:4.0.32"
+
+    // JTS + GeoJSON Reader
+    implementation "org.locationtech.jts:jts-core:1.20.0"
+    implementation "org.locationtech.jts.io:jts-io-common:1.20.0"
+
+    // AWS S3
+    implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+
+    // Monitoring
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'io.micrometer:micrometer-registry-prometheus'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+tasks.named('compileJava') {
+    dependsOn 'spotlessApply'
+}
+
+spotless {
+    java {
+        // Google JAVA Format 적용
+        googleJavaFormat()
+        // 아래 순서로 import 문 정렬
+        importOrder('java', 'javax', 'jakarta', 'org', 'com')
+        // 사용하지 않는 import 제거
+        removeUnusedImports()
+        // 각 라인 끝에 있는 공백을 제거
+        trimTrailingWhitespace()
+        // 파일 끝에 새로운 라인 추가
+        endWithNewline()
+        // 라이선스 헤더 추가
+        licenseHeader '/* \n * Copyright (c) SKU K-IO-SK \n */'
+        // 어노테이션 정렬을 일관성 있게 유지
+        formatAnnotations()
+        // 들여쓰기를 공백 2칸으로 고정
+        indentWithSpaces(2)
+        // 파일 인코딩을 UTF-8로 강제
+        encoding 'UTF-8'
+    }
+}
+
+tasks.named('check') {
+    dependsOn 'spotlessCheck'
+}
+
+def profile = project.findProperty("profile") ?: "dev"
+
+bootRun {
+    systemProperty "spring.profiles.active", profile
+}
+
+tasks.named('bootJar') {
+    doFirst {
+        println ">>> Building with Spring profile: $profile"
+    }
+}
