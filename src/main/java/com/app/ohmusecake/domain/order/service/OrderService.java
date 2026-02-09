@@ -3,15 +3,58 @@
  */
 package com.app.ohmusecake.domain.order.service;
 
-public interface OrderService {
+import java.util.List;
 
-  /*주문서 생성
-    - 사용자 기준
-    - 주문 취소 불가
-  주문서 조회
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-  주문 목록 조회(phone이 id역할)
-  주문서 수정 - 관리자
-  //주문 취소 - 관리자
-  */
+import com.app.ohmusecake.domain.order.dto.request.CreateOrderRequest;
+import com.app.ohmusecake.domain.order.entity.Order;
+import com.app.ohmusecake.domain.order.repository.OrderRepository;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+@Service
+@RequiredArgsConstructor
+@Slf4j
+public class OrderService {
+
+  private final OrderRepository orderRepository;
+
+  // 주문서 생성
+  @Transactional
+  public Long createOrder(CreateOrderRequest request) {
+    Order order =
+        Order.builder()
+            .customerName(request.getCustomerName())
+            .phone(request.getPhone())
+            .pickupDate(request.getPickupDate())
+            .pickupTime(request.getPickupTime())
+            .letteringText(request.getLetteringText())
+            .requestNote(request.getRequestNote())
+            .referenceImageUrl(request.getReferenceImageUrl())
+            .build();
+
+    orderRepository.save(order);
+
+    // 운영로그. 취소불가 명시
+    log.info("Order created. orderId={}", order.getId());
+
+    return order.getId();
+  }
+
+  // 주문서 조회
+  @Transactional(readOnly = true)
+  public Order getOrder(Long orderId) {
+    return orderRepository
+        .findById(orderId)
+        .orElseThrow(() -> new IllegalArgumentException("Order not found"));
+  }
+
+  // 주문 목록 조회(로그인 없는 사용자 식별용)
+  @Transactional(readOnly = true)
+  public List<Order> getOrderByPhone(String phone) {
+    return orderRepository.findByPhone(phone);
+  }
 }
