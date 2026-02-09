@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.app.ohmusecake.domain.order.dto.request.CreateOrderRequest;
-import com.app.ohmusecake.domain.order.entity.Order;
+import com.app.ohmusecake.domain.order.dto.response.DetailOrderResponse;
 import com.app.ohmusecake.domain.order.service.OrderService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -37,13 +37,13 @@ public class OrderController {
 
   @Operation(summary = "주문 단건 조회", description = "주문 ID로 주문 조회.")
   @GetMapping(value = "/{order-id}")
-  public Order getOrder(@PathVariable(value = "order-id") Long orderId) {
+  public DetailOrderResponse getOrder(@PathVariable(value = "order-id") Long orderId) {
     return orderService.getOrder(orderId);
   }
 
   @Operation(summary = "전화번호 주문 조회", description = "로그인 없이 전화번호로 주문 조회.")
   @GetMapping
-  public List<Order> getOrderByPhone(@RequestParam String phone) {
+  public List<DetailOrderResponse> getOrderByPhone(@RequestParam String phone) {
     return orderService.getOrderByPhone(phone);
   }
 }

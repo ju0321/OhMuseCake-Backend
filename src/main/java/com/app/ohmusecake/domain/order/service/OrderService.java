@@ -3,12 +3,15 @@
  */
 package com.app.ohmusecake.domain.order.service;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.app.ohmusecake.domain.order.dto.request.CreateOrderRequest;
+import com.app.ohmusecake.domain.order.dto.response.DetailOrderResponse;
+import com.app.ohmusecake.domain.order.entity.HeartCakeOptions;
 import com.app.ohmusecake.domain.order.entity.Order;
 import com.app.ohmusecake.domain.order.entity.OrderCake;
 import com.app.ohmusecake.domain.order.repository.OrderCakeRepository;
@@ -66,15 +69,59 @@ public class OrderService {
 
   // 주문서 조회
   @Transactional(readOnly = true)
-  public Order getOrder(Long orderId) {
-    return orderRepository
-        .findById(orderId)
-        .orElseThrow(() -> new IllegalArgumentException("Order not found"));
+  public DetailOrderResponse getOrder(Long orderId) {
+    Order order =
+        orderRepository
+            .findById(orderId)
+            .orElseThrow(() -> new IllegalArgumentException("Order not found"));
+
+    OrderCake orderCake = orderCakeRepository.findByOrder(order);
+
+    return toDetailOrderResponse(order, orderCake);
   }
 
   // 주문 목록 조회(로그인 없는 사용자 식별용)
   @Transactional(readOnly = true)
-  public List<Order> getOrderByPhone(String phone) {
-    return orderRepository.findByPhone(phone);
+  public List<DetailOrderResponse> getOrderByPhone(String phone) {
+
+    List<Order> orders = orderRepository.findByPhone(phone);
+
+    return orders.stream()
+        .map(
+            order -> {
+              OrderCake orderCake = orderCakeRepository.findByOrder(order);
+              return toDetailOrderResponse(order, orderCake);
+            })
+        .toList();
+  }
+
+  private DetailOrderResponse toDetailOrderResponse(Order order, OrderCake orderCake) {
+
+    return DetailOrderResponse.builder()
+        .orderId(order.getId())
+        .customerName(order.getCustomerName())
+        .phone(order.getPhone())
+        .pickupDate(order.getPickupDate())
+        .pickupTime(order.getPickupTime())
+        .cakeCategory(orderCake.getCakeCategory().getLabel())
+        .cakeSize(orderCake.getCakeSize().getLabel())
+        .cakeFlavor(orderCake.getCakeFlavor().getLabel())
+        .heartCakeOptions(parseHeartCakeOptions(orderCake.getHeartCakeOptions()))
+        .letteringText(order.getLetteringText())
+        .requestNote(order.getRequestNote())
+        .referenceImageUrl(order.getReferenceImageUrl())
+        .build();
+  }
+
+  // 파싱함수
+  private List<String> parseHeartCakeOptions(String options) {
+    if (options == null || options.isBlank()) {
+      return List.of();
+    }
+
+    return Arrays.stream(options.replace("[", "").replace("]", "").split(","))
+        .map(String::trim)
+        .map(opt -> HeartCakeOptions.valueOf(opt).getLabel())
+        .toList();
   }
 }

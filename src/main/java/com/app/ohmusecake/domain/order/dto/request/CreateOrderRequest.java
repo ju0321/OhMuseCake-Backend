@@ -41,7 +41,7 @@ public class CreateOrderRequest {
   private CakeFlavor cakeFlavor;
 
   // 복수 선택 → List
-  @Schema(description = "하트케이크 옵션(복수선택)", example = "CREAM_COLOR_CHANGE")
+  @Schema(description = "하트케이크 옵션(복수선택)", example = "[\"CREAM_COLOR_CHANGE\"]")
   private List<HeartCakeOptions> heartCakeOptions;
 
   @Schema(description = "레터링 글자", example = "생일축하해")
