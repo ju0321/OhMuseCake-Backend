@@ -1,3 +1,6 @@
+/* 
+ * Copyright (c) SKU K-IO-SK 
+ */
 package com.app.ohmusecake.domain.order.entity;
 
 import jakarta.persistence.Column;
@@ -46,9 +49,8 @@ public class OrderCake {
   @Column(name = "cake_flavor", nullable = false)
   private CakeFlavor cakeFlavor;
 
-  //하트 케이크 옵션(복수선택 -> JSON)
-  //Enumerated(EnumType.STRING)
+  // 하트 케이크 옵션(복수선택 -> JSON)
+  // Enumerated(EnumType.STRING)
   @Column(name = "heart_cake_option", columnDefinition = "TEXT")
-  private HeartCakeOption heartCakeOption;
-
+  private String heartCakeOptions;
 }

@@ -10,6 +10,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.app.ohmusecake.domain.order.dto.request.CreateOrderRequest;
 import com.app.ohmusecake.domain.order.entity.Order;
+import com.app.ohmusecake.domain.order.entity.OrderCake;
+import com.app.ohmusecake.domain.order.repository.OrderCakeRepository;
 import com.app.ohmusecake.domain.order.repository.OrderRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -21,10 +23,12 @@ import lombok.extern.slf4j.Slf4j;
 public class OrderService {
 
   private final OrderRepository orderRepository;
+  private final OrderCakeRepository orderCakeRepository;
 
   // 주문서 생성
   @Transactional
   public Long createOrder(CreateOrderRequest request) {
+
     Order order =
         Order.builder()
             .customerName(request.getCustomerName())
@@ -38,9 +42,25 @@ public class OrderService {
 
     orderRepository.save(order);
 
-    // 운영로그. 취소불가 명시
-    log.info("Order created. orderId={}", order.getId());
+    // 2. HeartCakeOption → JSON (간단 버전)
+    String heartCakeOptions = null;
 
+    if (request.getHeartCakeOptions() != null && !request.getHeartCakeOptions().isEmpty()) {
+      heartCakeOptions = request.getHeartCakeOptions().toString();
+    }
+
+    OrderCake orderCake =
+        OrderCake.builder()
+            .order(order) // FK 연결 핵심
+            .cakeCategory(request.getCakeCategory())
+            .cakeSize(request.getCakeSize())
+            .cakeFlavor(request.getCakeFlavor())
+            .heartCakeOptions(heartCakeOptions)
+            .build();
+
+    orderCakeRepository.save(orderCake);
+
+    log.info("Order created. orderId={}", order.getId());
     return order.getId();
   }
 
