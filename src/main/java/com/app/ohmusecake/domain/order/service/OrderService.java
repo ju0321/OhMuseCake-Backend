@@ -9,13 +9,16 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.app.ohmusecake.domain.cake.entity.HeartCakeOptions;
 import com.app.ohmusecake.domain.order.dto.request.CreateOrderRequest;
 import com.app.ohmusecake.domain.order.dto.response.DetailOrderResponse;
-import com.app.ohmusecake.domain.order.entity.HeartCakeOptions;
 import com.app.ohmusecake.domain.order.entity.Order;
 import com.app.ohmusecake.domain.order.entity.OrderCake;
+import com.app.ohmusecake.domain.order.entity.OrderStatus;
 import com.app.ohmusecake.domain.order.repository.OrderCakeRepository;
 import com.app.ohmusecake.domain.order.repository.OrderRepository;
+import com.app.ohmusecake.global.exception.CustomException;
+import com.app.ohmusecake.global.exception.GlobalErrorCode;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,6 +44,7 @@ public class OrderService {
             .letteringText(request.getLetteringText())
             .requestNote(request.getRequestNote())
             .referenceImageUrl(request.getReferenceImageUrl())
+            .status(OrderStatus.REQUEST)
             .build();
 
     orderRepository.save(order);
@@ -67,29 +71,56 @@ public class OrderService {
     return order.getId();
   }
 
-  // 주문서 조회
   @Transactional(readOnly = true)
   public DetailOrderResponse getOrder(Long orderId) {
+
     Order order =
         orderRepository
             .findById(orderId)
-            .orElseThrow(() -> new IllegalArgumentException("Order not found"));
+            .orElseThrow(
+                () -> {
+                  log.error("{}번 주문서를 찾을 수 없습니다.", orderId);
+                  return new CustomException(GlobalErrorCode.RESOURCE_NOT_FOUND);
+                });
 
-    OrderCake orderCake = orderCakeRepository.findByOrder(order);
+    OrderCake orderCake =
+        orderCakeRepository
+            .findByOrderId(orderId)
+            .orElseThrow(
+                () -> {
+                  log.error("{}번 주문서에 대한 케이크 정보를 찾을 수 없습니다.", orderId);
+                  return new CustomException(GlobalErrorCode.RESOURCE_NOT_FOUND);
+                });
+
+    log.info("{}번 주문서를 성공적으로 조회했습니다.", orderId);
 
     return toDetailOrderResponse(order, orderCake);
   }
 
-  // 주문 목록 조회(로그인 없는 사용자 식별용)
   @Transactional(readOnly = true)
   public List<DetailOrderResponse> getOrderByPhone(String phone) {
 
     List<Order> orders = orderRepository.findByPhone(phone);
 
+    if (orders.isEmpty()) {
+      log.error("전화번호 {}에 대한 주문 내역이 없습니다.", phone);
+      throw new CustomException(GlobalErrorCode.RESOURCE_NOT_FOUND);
+    }
+
+    log.info("전화번호 {}로 {}건의 주문을 조회했습니다.", phone, orders.size());
+
     return orders.stream()
         .map(
             order -> {
-              OrderCake orderCake = orderCakeRepository.findByOrder(order);
+              OrderCake orderCake =
+                  orderCakeRepository
+                      .findByOrderId(order.getId())
+                      .orElseThrow(
+                          () -> {
+                            log.error("{}번 주문서에 대한 케이크 정보를 찾을 수 없습니다.", order.getId());
+                            return new CustomException(GlobalErrorCode.RESOURCE_NOT_FOUND);
+                          });
+
               return toDetailOrderResponse(order, orderCake);
             })
         .toList();
@@ -110,7 +141,19 @@ public class OrderService {
         .letteringText(order.getLetteringText())
         .requestNote(order.getRequestNote())
         .referenceImageUrl(order.getReferenceImageUrl())
+        .orderStatus(order.getStatus().getLabel())
         .build();
+  }
+
+  @Transactional
+  public void changeOrderStatus(Long orderId, OrderStatus status) {
+
+    Order order =
+        orderRepository
+            .findById(orderId)
+            .orElseThrow(() -> new IllegalArgumentException("Order not found"));
+
+    order.changeStatus(status);
   }
 
   // 파싱함수

@@ -8,6 +8,8 @@ import java.time.LocalTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -52,8 +54,14 @@ public class Order {
   @Column(name = "referenceImage")
   private String referenceImageUrl;
 
-  // 이것도 enum으로
-  // private OrderStatus status;   //Order, Cancel ,,,
+  @Enumerated(EnumType.STRING)
+  @Column(name = "order_status", nullable = false)
+  private OrderStatus status; // Order, Cancel ,,,
+
+  // order status 관리자만 변경 가능
+  public void changeStatus(OrderStatus status) {
+    this.status = status;
+  }
 
   /*
   public void updateOrder(UpdateOrderRequest updateOrderReqeust, OrderCategory orderCategory...){

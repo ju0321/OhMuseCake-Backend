@@ -52,4 +52,7 @@ public class DetailOrderResponse {
 
   @Schema(description = "참고 사진", example = "image.jpg")
   private String referenceImageUrl;
+
+  @Schema(description = "주문 상태", example = "완료")
+  private String orderStatus;
 }

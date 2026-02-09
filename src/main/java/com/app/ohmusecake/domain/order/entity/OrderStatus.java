@@ -8,14 +8,11 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum CakeSize {
-  MINI("미니(2~3인"),
-  TALL_MINI("높은 미니"),
-  SIZE_1("1호"),
-  SIZE_2("2호"),
-  SIZE_3("3호"),
-  SET_2("2구"),
-  SET_4("4구");
+public enum OrderStatus {
+  REQUEST("주문 접수"),
+  CONFIRMED("주문 확정"),
+  DONE("제작 완료"),
+  CANCELLED("주문 취소");
 
   private final String label;
 }

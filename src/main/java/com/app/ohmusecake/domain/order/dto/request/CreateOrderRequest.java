@@ -7,10 +7,10 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
-import com.app.ohmusecake.domain.order.entity.CakeCategory;
-import com.app.ohmusecake.domain.order.entity.CakeFlavor;
-import com.app.ohmusecake.domain.order.entity.CakeSize;
-import com.app.ohmusecake.domain.order.entity.HeartCakeOptions;
+import com.app.ohmusecake.domain.cake.entity.CakeCategory;
+import com.app.ohmusecake.domain.cake.entity.CakeFlavor;
+import com.app.ohmusecake.domain.cake.entity.CakeSize;
+import com.app.ohmusecake.domain.cake.entity.HeartCakeOptions;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
