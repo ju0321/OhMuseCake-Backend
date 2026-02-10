@@ -23,7 +23,6 @@ import lombok.NoArgsConstructor;
 @Table(name = "orders")
 @Entity
 @Getter
-// @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

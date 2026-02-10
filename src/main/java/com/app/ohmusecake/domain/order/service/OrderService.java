@@ -15,10 +15,10 @@ import com.app.ohmusecake.domain.order.dto.response.DetailOrderResponse;
 import com.app.ohmusecake.domain.order.entity.Order;
 import com.app.ohmusecake.domain.order.entity.OrderCake;
 import com.app.ohmusecake.domain.order.entity.OrderStatus;
+import com.app.ohmusecake.domain.order.exception.OrderErrorCode;
 import com.app.ohmusecake.domain.order.repository.OrderCakeRepository;
 import com.app.ohmusecake.domain.order.repository.OrderRepository;
 import com.app.ohmusecake.global.exception.CustomException;
-import com.app.ohmusecake.global.exception.GlobalErrorCode;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -80,7 +80,7 @@ public class OrderService {
             .orElseThrow(
                 () -> {
                   log.error("{}번 주문서를 찾을 수 없습니다.", orderId);
-                  return new CustomException(GlobalErrorCode.RESOURCE_NOT_FOUND);
+                  return new CustomException(OrderErrorCode.ORDER_NOT_FOUND);
                 });
 
     OrderCake orderCake =
@@ -89,7 +89,7 @@ public class OrderService {
             .orElseThrow(
                 () -> {
                   log.error("{}번 주문서에 대한 케이크 정보를 찾을 수 없습니다.", orderId);
-                  return new CustomException(GlobalErrorCode.RESOURCE_NOT_FOUND);
+                  return new CustomException(OrderErrorCode.ORDER_NOT_FOUND);
                 });
 
     log.info("{}번 주문서를 성공적으로 조회했습니다.", orderId);
@@ -104,7 +104,7 @@ public class OrderService {
 
     if (orders.isEmpty()) {
       log.error("전화번호 {}에 대한 주문 내역이 없습니다.", phone);
-      throw new CustomException(GlobalErrorCode.RESOURCE_NOT_FOUND);
+      throw new CustomException(OrderErrorCode.ORDER_NOT_FOUND);
     }
 
     log.info("전화번호 {}로 {}건의 주문을 조회했습니다.", phone, orders.size());
@@ -118,7 +118,7 @@ public class OrderService {
                       .orElseThrow(
                           () -> {
                             log.error("{}번 주문서에 대한 케이크 정보를 찾을 수 없습니다.", order.getId());
-                            return new CustomException(GlobalErrorCode.RESOURCE_NOT_FOUND);
+                            return new CustomException(OrderErrorCode.ORDER_NOT_FOUND);
                           });
 
               return toDetailOrderResponse(order, orderCake);
