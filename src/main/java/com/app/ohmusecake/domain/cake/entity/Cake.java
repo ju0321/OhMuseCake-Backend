@@ -1,3 +1,6 @@
+/* 
+ * Copyright (c) SKU K-IO-SK 
+ */
 package com.app.ohmusecake.domain.cake.entity;
 
 import jakarta.persistence.Column;
@@ -6,20 +9,19 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-
-
 @Entity
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name="cake")
+@Table(name = "cake")
 @Builder
 public class Cake {
   @Id
@@ -44,7 +46,7 @@ public class Cake {
   @Column(name = "image_url")
   private String imageUrl;
 
-  @Column(name="description", columnDefinition = "TEXT")
+  @Column(name = "description", columnDefinition = "TEXT")
   private String description;
 
   @Column(name = "is_best", nullable = false)
@@ -53,6 +55,5 @@ public class Cake {
 
   @Column(name = "is_visible", nullable = false)
   @Builder.Default
-  private boolean isVisible = true;   //품절, 시즌종료, 임시 비공개
-
+  private boolean isVisible = true; // 품절, 시즌종료, 임시 비공개
 }
