@@ -58,4 +58,6 @@ public class CakeService {
 
   // delete는 나중에 - isVisible로 처리
 
+  //// 사이즈 허용 규칙 - 만약 적용 안되는 케이크 사이즈 선택시 주문 Xx 메세지 출력
+
 }
