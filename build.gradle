@@ -5,9 +5,13 @@ plugins {
     id 'com.diffplug.spotless' version '6.19.0'
 }
 
-group = 'com.sku'
+ext {
+    springAiVersion = "1.1.2"
+}
+
+group = 'com.app'
 version = '0.0.1-SNAPSHOT'
-description = 'kiosk'
+description = 'ohmusecake'
 
 java {
     toolchain {
@@ -83,8 +87,6 @@ spotless {
         trimTrailingWhitespace()
         // 파일 끝에 새로운 라인 추가
         endWithNewline()
-        // 라이선스 헤더 추가
-        licenseHeader '/* \n * Copyright (c) SKU K-IO-SK \n */'
         // 어노테이션 정렬을 일관성 있게 유지
         formatAnnotations()
         // 들여쓰기를 공백 2칸으로 고정
@@ -102,6 +104,12 @@ def profile = project.findProperty("profile") ?: "dev"
 
 bootRun {
     systemProperty "spring.profiles.active", profile
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.ai:spring-ai-bom:$springAiVersion"
+    }
 }
 
 tasks.named('bootJar') {

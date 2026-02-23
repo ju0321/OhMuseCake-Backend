@@ -1,6 +1,3 @@
-/* 
- * Copyright (c) SKU K-IO-SK 
- */
 package com.app.ohmusecake.domain.order.entity;
 
 import jakarta.persistence.Column;
@@ -12,7 +9,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 import com.app.ohmusecake.domain.cake.entity.CakeCategory;
@@ -36,11 +33,10 @@ public class OrderCake {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @ManyToOne(fetch = FetchType.LAZY) // OrderCake만 order 참조
-  @JoinColumn(name = "order_id", nullable = false)
+  @OneToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "order_id", nullable = false, unique = true)
   private Order order;
 
-  // enum으로 만들기
   @Enumerated(EnumType.STRING)
   @Column(name = "cake_category", nullable = false)
   private CakeCategory cakeCategory;
@@ -53,8 +49,7 @@ public class OrderCake {
   @Column(name = "cake_flavor", nullable = false)
   private CakeFlavor cakeFlavor;
 
-  // 하트 케이크 옵션(복수선택 -> JSON)
-  // Enumerated(EnumType.STRING)
-  @Column(name = "heart_cake_option", columnDefinition = "TEXT")
-  private String heartCakeOptions;
+  // 케이크 옵션 변경 (복수 선택 → JSON 저장)
+  @Column(name = "cake_options", columnDefinition = "TEXT")
+  private String cakeOptions;
 }

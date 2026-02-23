@@ -1,5 +1,5 @@
-/* 
- * Copyright (c) SKU K-IO-SK 
+/*
+ * Copyright (c) SKU K-IO-SK
  */
 package com.app.ohmusecake;
 

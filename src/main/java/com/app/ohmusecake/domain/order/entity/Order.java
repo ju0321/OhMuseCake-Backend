@@ -1,11 +1,11 @@
-/* 
- * Copyright (c) SKU K-IO-SK 
- */
 package com.app.ohmusecake.domain.order.entity;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -13,6 +13,8 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 import lombok.AllArgsConstructor;
@@ -32,6 +34,12 @@ public class Order {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
+  @OneToOne(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+  private OrderCake orderCake;
+
+  @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<OrderExtra> orderExtras = new ArrayList<>();
+
   @Column(name = "customer_name", nullable = false)
   private String customerName;
 
@@ -47,37 +55,17 @@ public class Order {
   @Column(name = "lettering_text", columnDefinition = "TEXT")
   private String letteringText;
 
-  @Column(name = "request_note")
+  @Column(name = "request_note", columnDefinition = "TEXT")
   private String requestNote;
 
-  @Column(name = "referenceImage")
+  @Column(name = "reference_image_url")
   private String referenceImageUrl;
 
   @Enumerated(EnumType.STRING)
   @Column(name = "order_status", nullable = false)
-  private OrderStatus status; // Order, Cancel ,,,
-
-  // order status 관리자만 변경 가능
-  public void changeStatus(OrderStatus status) {
-    this.status = status;
-  }
-
-  /*
-  public void updateOrder(UpdateOrderRequest updateOrderReqeust, OrderCategory orderCategory...){
-  }
+  private OrderStatus status;
 
   public void changeStatus(OrderStatus status) {
     this.status = status;
   }
-
-  public void updatePickupInfo(LocalDate pickupDate, LocalTime pickupTime) {
-    this.pickupDate = pickupDate;
-    this.pickupTime = pickupTime;
-  }
-
-  public void updateRequest(String letteringText, String requestNote) {
-    this.letteringText = letteringText;
-    this.requestNote = requestNote;
-  }
-   */
 }

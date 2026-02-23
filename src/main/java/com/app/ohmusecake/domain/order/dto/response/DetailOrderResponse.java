@@ -1,6 +1,3 @@
-/* 
- * Copyright (c) SKU K-IO-SK 
- */
 package com.app.ohmusecake.domain.order.dto.response;
 
 import java.time.LocalDate;
@@ -41,8 +38,8 @@ public class DetailOrderResponse {
   @Schema(description = "케이크 맛", example = "VANILA")
   private String cakeFlavor;
 
-  @Schema(description = "하트 케이크 옵션", example = "[\"CREAM_COLOR_CHANGE\", \"FLOWER_ADD\"]")
-  private List<String> heartCakeOptions;
+  @Schema(description = "케이크 옵션 (복수 선택)", example = "[\"생크림 색 변경\", \"젤리 추가\"]")
+  private List<String> cakeOptions;
 
   @Schema(description = "레터링 글자", example = "생일축하해")
   private String letteringText;
@@ -52,6 +49,9 @@ public class DetailOrderResponse {
 
   @Schema(description = "참고 사진", example = "image.jpg")
   private String referenceImageUrl;
+
+  @Schema(description = "추가상품 옵션 id 목록", example = "[1, 3, 5]")
+  private List<Long> extraProductIds;
 
   @Schema(description = "주문 상태", example = "완료")
   private String orderStatus;

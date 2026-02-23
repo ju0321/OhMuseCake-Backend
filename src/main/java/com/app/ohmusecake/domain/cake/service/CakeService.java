@@ -1,6 +1,3 @@
-/* 
- * Copyright (c) SKU K-IO-SK 
- */
 package com.app.ohmusecake.domain.cake.service;
 
 import java.util.List;
@@ -53,7 +50,9 @@ public class CakeService {
                   return new CustomException(CakeErrorCode.CAKE_NOT_FOUND);
                 });
     log.info("{}번 케이크를 성공적으로 조회했습니다.", cakeId);
-
+    if (!cake.isVisible()) {
+      throw new CustomException(CakeErrorCode.CAKE_NOT_FOUND);
+    }
     return DetailCakeResponse.from(cake);
   }
 
