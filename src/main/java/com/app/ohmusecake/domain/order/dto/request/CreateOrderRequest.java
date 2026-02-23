@@ -8,6 +8,7 @@ import com.app.ohmusecake.domain.cake.entity.CakeCategory;
 import com.app.ohmusecake.domain.cake.entity.CakeFlavor;
 import com.app.ohmusecake.domain.cake.entity.CakeOption;
 import com.app.ohmusecake.domain.cake.entity.CakeSize;
+import com.app.ohmusecake.domain.order.entity.ExtraOption;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
@@ -43,8 +44,8 @@ public class CreateOrderRequest {
   @Schema(description = "레터링 문구", example = "생일축하해")
   private String letteringText;
 
-  @Schema(description = "추가 옵션 id 목록 (레터링 종류, 보냉백, 손글씨 초 등)", example = "[1, 3, 5]")
-  private List<Long> extraProductIds;
+  @Schema(description = "추가 옵션 목록", example = "[\"ALPHABET_CHOCOLATE\", \"CLEAR_BOX\"]")
+  private List<ExtraOption> extraOptions;
 
   @Schema(description = "디자인 디테일 / 요청사항", example = "꽃 많이 넣어주세요")
   private String requestNote;

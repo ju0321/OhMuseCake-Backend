@@ -7,16 +7,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.app.ohmusecake.domain.cake.entity.CakeOption;
-import com.app.ohmusecake.domain.extraProduct.entity.ExtraProduct;
-import com.app.ohmusecake.domain.extraProduct.repository.ExtraProductRepository;
 import com.app.ohmusecake.domain.order.dto.request.CreateOrderRequest;
 import com.app.ohmusecake.domain.order.dto.response.DetailOrderResponse;
+import com.app.ohmusecake.domain.order.entity.ExtraOption;
 import com.app.ohmusecake.domain.order.entity.Order;
 import com.app.ohmusecake.domain.order.entity.OrderCake;
 import com.app.ohmusecake.domain.order.entity.OrderExtra;
 import com.app.ohmusecake.domain.order.entity.OrderStatus;
 import com.app.ohmusecake.domain.order.exception.OrderErrorCode;
 import com.app.ohmusecake.domain.order.repository.OrderCakeRepository;
+import com.app.ohmusecake.domain.order.repository.OrderExtraRepository;
 import com.app.ohmusecake.domain.order.repository.OrderRepository;
 import com.app.ohmusecake.global.exception.CustomException;
 
@@ -30,9 +30,8 @@ public class OrderService {
 
   private final OrderRepository orderRepository;
   private final OrderCakeRepository orderCakeRepository;
-  private final ExtraProductRepository extraProductRepository;
+  private final OrderExtraRepository orderExtraRepository;
 
-  // 주문서 생성
   @Transactional
   public Long createOrder(CreateOrderRequest request) {
 
@@ -50,7 +49,6 @@ public class OrderService {
 
     orderRepository.save(order);
 
-    // cakeOptions → JSON 문자열 변환
     String cakeOptionsJson = null;
     if (request.getCakeOptions() != null && !request.getCakeOptions().isEmpty()) {
       cakeOptionsJson =
@@ -70,21 +68,10 @@ public class OrderService {
 
     orderCakeRepository.save(orderCake);
 
-    // extraProducts 저장
-    if (request.getExtraProductIds() != null && !request.getExtraProductIds().isEmpty()) {
-      for (Long extraProductId : request.getExtraProductIds()) {
-        ExtraProduct extraProduct =
-            extraProductRepository
-                .findById(extraProductId)
-                .orElseThrow(() -> new CustomException(OrderErrorCode.ORDER_NOT_FOUND));
-
-        OrderExtra orderExtra =
-            OrderExtra.builder().order(order).extraProduct(extraProduct).build();
-
-        // OrderExtra 저장을 위한 repository 필요 → order에 직접 persist cascade 또는 별도 저장
-        // 현재는 OrderExtra가 자동 cascade 없으므로 무시하거나 별도 repo 추가 필요
-        // 일단 로그만 남김
-        log.info("ExtraProduct {} linked to order {}", extraProductId, order.getId());
+    if (request.getExtraOptions() != null && !request.getExtraOptions().isEmpty()) {
+      for (ExtraOption extraOption : request.getExtraOptions()) {
+        orderExtraRepository.save(
+            OrderExtra.builder().order(order).extraOption(extraOption).build());
       }
     }
 
@@ -113,9 +100,14 @@ public class OrderService {
                   return new CustomException(OrderErrorCode.ORDER_NOT_FOUND);
                 });
 
+    List<String> extraOptions =
+        orderExtraRepository.findByOrderId(orderId).stream()
+            .map(oe -> oe.getExtraOption().getLabel())
+            .toList();
+
     log.info("{}번 주문서를 성공적으로 조회했습니다.", orderId);
 
-    return toDetailOrderResponse(order, orderCake);
+    return toDetailOrderResponse(order, orderCake, extraOptions);
   }
 
   @Transactional(readOnly = true)
@@ -142,12 +134,39 @@ public class OrderService {
                             return new CustomException(OrderErrorCode.ORDER_NOT_FOUND);
                           });
 
-              return toDetailOrderResponse(order, orderCake);
+              List<String> extraOptions =
+                  orderExtraRepository.findByOrderId(order.getId()).stream()
+                      .map(oe -> oe.getExtraOption().getLabel())
+                      .toList();
+
+              return toDetailOrderResponse(order, orderCake, extraOptions);
             })
         .toList();
   }
 
-  private DetailOrderResponse toDetailOrderResponse(Order order, OrderCake orderCake) {
+  @Transactional(readOnly = true)
+  public List<DetailOrderResponse> getOrderList() {
+
+    return orderRepository.findAll().stream()
+        .map(
+            order -> {
+              OrderCake orderCake =
+                  orderCakeRepository
+                      .findByOrderId(order.getId())
+                      .orElseThrow(() -> new CustomException(OrderErrorCode.ORDER_NOT_FOUND));
+
+              List<String> extraOptions =
+                  orderExtraRepository.findByOrderId(order.getId()).stream()
+                      .map(oe -> oe.getExtraOption().getLabel())
+                      .toList();
+
+              return toDetailOrderResponse(order, orderCake, extraOptions);
+            })
+        .toList();
+  }
+
+  private DetailOrderResponse toDetailOrderResponse(
+      Order order, OrderCake orderCake, List<String> extraOptions) {
 
     return DetailOrderResponse.builder()
         .orderId(order.getId())
@@ -159,6 +178,7 @@ public class OrderService {
         .cakeSize(orderCake.getCakeSize().getLabel())
         .cakeFlavor(orderCake.getCakeFlavor().getLabel())
         .cakeOptions(parseCakeOptions(orderCake.getCakeOptions()))
+        .extraOptions(extraOptions)
         .letteringText(order.getLetteringText())
         .requestNote(order.getRequestNote())
         .referenceImageUrl(order.getReferenceImageUrl())
@@ -177,12 +197,10 @@ public class OrderService {
     order.changeStatus(status);
   }
 
-  // JSON 문자열 → CakeOption label 목록
   private List<String> parseCakeOptions(String options) {
     if (options == null || options.isBlank()) {
       return List.of();
     }
-
     return java.util.Arrays.stream(options.replace("[", "").replace("]", "").split(","))
         .map(String::trim)
         .filter(s -> !s.isEmpty())
