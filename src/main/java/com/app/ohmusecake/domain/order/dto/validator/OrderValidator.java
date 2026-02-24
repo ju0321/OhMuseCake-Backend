@@ -1,5 +1,6 @@
 package com.app.ohmusecake.domain.order.dto.validator;
 
+import java.text.Normalizer;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -11,6 +12,7 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
 import com.app.ohmusecake.domain.cake.entity.CakeCategory;
+import com.app.ohmusecake.domain.cake.entity.CakeFlavor;
 import com.app.ohmusecake.domain.cake.entity.CakeOption;
 import com.app.ohmusecake.domain.cake.entity.CakeSize;
 import com.app.ohmusecake.domain.order.dto.request.CreateOrderRequest;
@@ -34,6 +36,7 @@ public class OrderValidator implements ConstraintValidator<OrderReqeustCheck, Cr
     valid &= validateCakeSize(request.getCakeCategory(), request.getCakeSize(), context);
 
     // 케이크 종류별 맛 제한
+    valid &= validateCakeFlavor(request.getCakeCategory(), request.getCakeFlavor(), context);
 
     // 케이크 종류별 옵션 제한
     valid &= validateOptions(request.getCakeCategory(), request.getCakeOptions(), context);
@@ -50,9 +53,9 @@ public class OrderValidator implements ConstraintValidator<OrderReqeustCheck, Cr
 
     if (cakeSize == null || letteringText == null) return true; // @NotNull에서 따로 처리
 
-    int length = letteringText.trim().length();
+    int length = Normalizer.normalize(letteringText.trim(), Normalizer.Form.NFC).length();
     int max;
-    if (cakeSize == CakeSize.MINI) {
+    if (cakeSize == CakeSize.MINI || cakeSize == CakeSize.TALL_MINI) {
       max = 13;
     } else {
       max = 20;
@@ -61,14 +64,7 @@ public class OrderValidator implements ConstraintValidator<OrderReqeustCheck, Cr
     if (length <= max) {
       return true;
     }
-
-    context.disableDefaultConstraintViolation();
-    context
-        .buildConstraintViolationWithTemplate(
-            String.format(
-                "%s 사이즈는 %d자 이하만 입력 가능합니다.", cakeSize == CakeSize.MINI ? "미니" : "해당", max))
-        .addPropertyNode("letteringText")
-        .addConstraintViolation();
+    addError(context, "letteringText", String.format("해당 사이즈는 %d자 이하만 입력 가능합니다.", max));
 
     return false;
   }
@@ -114,6 +110,22 @@ public class OrderValidator implements ConstraintValidator<OrderReqeustCheck, Cr
     return true;
   }
 
+  private boolean validateCakeFlavor(
+      CakeCategory cakeCategory, CakeFlavor cakeFlavor, ConstraintValidatorContext context) {
+    if (cakeFlavor == null) return true;
+
+    if (cakeCategory == CakeCategory.FLOWER_CUPCAKE) {
+      if (cakeFlavor == CakeFlavor.VANILLA || cakeFlavor == CakeFlavor.CHOCOLATE) {
+        return true;
+      } else {
+        addError(context, "cakeFlavor", String.format("컵케이크는 바닐라 맛, 초코 맛만 선택할 수 있습니다."));
+        return false;
+      }
+    }
+
+    return true;
+  }
+
   private boolean validateOptions(
       CakeCategory cakeCategory, List<CakeOption> cakeOptions, ConstraintValidatorContext context) {
     if (cakeOptions == null || cakeOptions.isEmpty()) return true;
@@ -136,6 +148,14 @@ public class OrderValidator implements ConstraintValidator<OrderReqeustCheck, Cr
       addError(context, "pickupDateTime", "픽업 날짜와 시간은 현재 이후여야 합니다");
       return false;
     }
+
+    // 30분 단위 검증
+    int minute = pickupTime.getMinute();
+    if (minute != 0 && minute != 30) {
+      addError(context, "pickupTime", "픽업 시간은 30분 단위로만 선택 가능합니다.");
+      return false;
+    }
+
     //// 영업시간 이외 픽업 불가
     DayOfWeek day = pickupDate.getDayOfWeek();
     LocalTime open, close;

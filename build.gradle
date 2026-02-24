@@ -28,6 +28,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
 
+    // DevTools
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
     // Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
@@ -95,6 +98,10 @@ spotless {
         // 파일 인코딩을 UTF-8로 강제
         encoding 'UTF-8'
     }
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
 }
 
 tasks.named('check') {
