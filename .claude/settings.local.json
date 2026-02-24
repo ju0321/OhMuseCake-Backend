@@ -9,7 +9,10 @@
       "Bash(git branch:*)",
       "Bash(git remote add:*)",
       "Bash(git push:*)",
-      "Bash(./gradlew compileJava:*)"
+      "Bash(./gradlew compileJava:*)",
+      "Bash(for dir in \"디자인\" \"하트\" \"생화\" \"생화 젤리\" \"생화 컵케이크\" \"쁘띠\" \"기타\")",
+      "Bash(do echo \"=== $dir ===\" ls \"C:/Users/ojing/OneDrive/문서/바탕 화면/Oh, MuseCake/$dir/\")",
+      "Bash(done)"
     ]
   }
 }

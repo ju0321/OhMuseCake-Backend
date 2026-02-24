@@ -4,16 +4,22 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
+import jakarta.validation.constraints.NotNull;
+
 import com.app.ohmusecake.domain.cake.entity.CakeCategory;
 import com.app.ohmusecake.domain.cake.entity.CakeFlavor;
 import com.app.ohmusecake.domain.cake.entity.CakeOption;
 import com.app.ohmusecake.domain.cake.entity.CakeSize;
+import com.app.ohmusecake.domain.order.dto.validator.OrderReqeustCheck;
 import com.app.ohmusecake.domain.order.entity.ExtraOption;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+@OrderReqeustCheck
 @Getter
+@NoArgsConstructor
 @Schema(title = "CreateOrderRequest: 주문서 생성 요청 DTO")
 public class CreateOrderRequest {
 
@@ -24,13 +30,15 @@ public class CreateOrderRequest {
   private String phone;
 
   @Schema(description = "픽업 날짜", example = "2025-12-04")
+  // @Future()
   private LocalDate pickupDate;
 
   @Schema(description = "픽업 시간", example = "15:00")
+  // @Future()
   private LocalTime pickupTime;
 
   @Schema(description = "케이크 종류", example = "DESIGN")
-  private CakeCategory cakeCategory;
+  @NotNull private CakeCategory cakeCategory;
 
   @Schema(description = "케이크 옵션 변경 (복수 선택)", example = "[\"CREAM_COLOR_CHANGE\", \"JELLY_ADD\"]")
   private List<CakeOption> cakeOptions;

@@ -2,6 +2,8 @@ package com.app.ohmusecake.domain.order.controller;
 
 import java.util.List;
 
+import jakarta.validation.Valid;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,7 +33,7 @@ public class OrderController {
   @Operation(summary = "주문서 생성", description = "사용자로부터 주문 요청 받아 주문서 생성")
   @PostMapping
   public ResponseEntity<BaseResponse<Long>> createOrder(
-      @RequestBody CreateOrderRequest createOrderRequest) {
+      @Valid @RequestBody CreateOrderRequest createOrderRequest) {
 
     Long orderId = orderService.createOrder(createOrderRequest);
 
