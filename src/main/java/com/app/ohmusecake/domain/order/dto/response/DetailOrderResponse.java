@@ -1,11 +1,11 @@
-/* 
- * Copyright (c) SKU K-IO-SK 
- */
 package com.app.ohmusecake.domain.order.dto.response;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+
+import com.app.ohmusecake.domain.order.entity.Order;
+import com.app.ohmusecake.domain.order.entity.OrderCake;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
@@ -41,8 +41,8 @@ public class DetailOrderResponse {
   @Schema(description = "케이크 맛", example = "VANILA")
   private String cakeFlavor;
 
-  @Schema(description = "하트 케이크 옵션", example = "[\"CREAM_COLOR_CHANGE\", \"FLOWER_ADD\"]")
-  private List<String> heartCakeOptions;
+  @Schema(description = "케이크 옵션 (복수 선택)", example = "[\"생크림 색 변경\", \"젤리 추가\"]")
+  private List<String> cakeOptions;
 
   @Schema(description = "레터링 글자", example = "생일축하해")
   private String letteringText;
@@ -53,6 +53,23 @@ public class DetailOrderResponse {
   @Schema(description = "참고 사진", example = "image.jpg")
   private String referenceImageUrl;
 
+  @Schema(description = "추가 옵션 목록", example = "[\"알파벳 초콜릿 추가\", \"투명 상자\"]")
+  private List<String> extraOptions;
+
   @Schema(description = "주문 상태", example = "완료")
   private String orderStatus;
+
+  public static DetailOrderResponse of(Order order, OrderCake cake) {
+
+    return DetailOrderResponse.builder()
+        .orderId(order.getId())
+        .customerName(order.getCustomerName())
+        .phone(order.getPhone())
+        .pickupDate(order.getPickupDate())
+        .pickupTime(order.getPickupTime())
+        .cakeSize(cake.getCakeSize().name())
+        .cakeFlavor(cake.getCakeFlavor().name())
+        .orderStatus(order.getStatus().name())
+        .build();
+  }
 }

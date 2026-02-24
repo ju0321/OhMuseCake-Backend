@@ -1,9 +1,8 @@
-/* 
- * Copyright (c) SKU K-IO-SK 
- */
 package com.app.ohmusecake.domain.order.controller;
 
 import java.util.List;
+
+import jakarta.validation.Valid;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,7 +33,7 @@ public class OrderController {
   @Operation(summary = "주문서 생성", description = "사용자로부터 주문 요청 받아 주문서 생성")
   @PostMapping
   public ResponseEntity<BaseResponse<Long>> createOrder(
-      @RequestBody CreateOrderRequest createOrderRequest) {
+      @Valid @RequestBody CreateOrderRequest createOrderRequest) {
 
     Long orderId = orderService.createOrder(createOrderRequest);
 
@@ -50,12 +49,19 @@ public class OrderController {
   }
 
   @Operation(summary = "전화번호 주문 조회", description = "로그인 없이 전화번호로 주문 조회.")
-  @GetMapping
+  @GetMapping(value = "/search")
   public ResponseEntity<BaseResponse<List<DetailOrderResponse>>> getOrderByPhone(
       @RequestParam String phone) {
     return ResponseEntity.status(200)
         .body(
             BaseResponse.success(
                 200, "주문서 phone으로 조회, 상세보기 반환 성공", orderService.getOrderByPhone(phone)));
+  }
+
+  @Operation(summary = "주문서 전체 조회", description = "주문서 전체 조회. - 관리자")
+  @GetMapping
+  public ResponseEntity<BaseResponse<List<DetailOrderResponse>>> getOrderList() {
+    return ResponseEntity.status(200)
+        .body(BaseResponse.success(200, "주문서 전체 목록 조회, 반환 성공", orderService.getOrderList()));
   }
 }

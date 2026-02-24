@@ -1,6 +1,3 @@
-/* 
- * Copyright (c) SKU K-IO-SK 
- */
 package com.app.ohmusecake.domain.cake.controller;
 
 import java.util.List;

@@ -1,22 +1,22 @@
-/* 
- * Copyright (c) SKU K-IO-SK 
- */
 package com.app.ohmusecake.domain.order.service;
 
-import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.app.ohmusecake.domain.cake.entity.HeartCakeOptions;
+import com.app.ohmusecake.domain.cake.entity.CakeOption;
 import com.app.ohmusecake.domain.order.dto.request.CreateOrderRequest;
 import com.app.ohmusecake.domain.order.dto.response.DetailOrderResponse;
+import com.app.ohmusecake.domain.order.entity.ExtraOption;
 import com.app.ohmusecake.domain.order.entity.Order;
 import com.app.ohmusecake.domain.order.entity.OrderCake;
+import com.app.ohmusecake.domain.order.entity.OrderExtra;
 import com.app.ohmusecake.domain.order.entity.OrderStatus;
 import com.app.ohmusecake.domain.order.exception.OrderErrorCode;
 import com.app.ohmusecake.domain.order.repository.OrderCakeRepository;
+import com.app.ohmusecake.domain.order.repository.OrderExtraRepository;
 import com.app.ohmusecake.domain.order.repository.OrderRepository;
 import com.app.ohmusecake.global.exception.CustomException;
 
@@ -30,8 +30,8 @@ public class OrderService {
 
   private final OrderRepository orderRepository;
   private final OrderCakeRepository orderCakeRepository;
+  private final OrderExtraRepository orderExtraRepository;
 
-  // 주문서 생성
   @Transactional
   public Long createOrder(CreateOrderRequest request) {
 
@@ -49,23 +49,31 @@ public class OrderService {
 
     orderRepository.save(order);
 
-    // 2. HeartCakeOption → JSON (간단 버전)
-    String heartCakeOptions = null;
-
-    if (request.getHeartCakeOptions() != null && !request.getHeartCakeOptions().isEmpty()) {
-      heartCakeOptions = request.getHeartCakeOptions().toString();
+    String cakeOptionsJson = null;
+    if (request.getCakeOptions() != null && !request.getCakeOptions().isEmpty()) {
+      cakeOptionsJson =
+          request.getCakeOptions().stream()
+              .map(CakeOption::name)
+              .collect(Collectors.joining(",", "[", "]"));
     }
 
     OrderCake orderCake =
         OrderCake.builder()
-            .order(order) // FK 연결 핵심
+            .order(order)
             .cakeCategory(request.getCakeCategory())
             .cakeSize(request.getCakeSize())
             .cakeFlavor(request.getCakeFlavor())
-            .heartCakeOptions(heartCakeOptions)
+            .cakeOptions(cakeOptionsJson)
             .build();
 
     orderCakeRepository.save(orderCake);
+
+    if (request.getExtraOptions() != null && !request.getExtraOptions().isEmpty()) {
+      for (ExtraOption extraOption : request.getExtraOptions()) {
+        orderExtraRepository.save(
+            OrderExtra.builder().order(order).extraOption(extraOption).build());
+      }
+    }
 
     log.info("Order created. orderId={}", order.getId());
     return order.getId();
@@ -92,9 +100,14 @@ public class OrderService {
                   return new CustomException(OrderErrorCode.ORDER_NOT_FOUND);
                 });
 
+    List<String> extraOptions =
+        orderExtraRepository.findByOrderId(orderId).stream()
+            .map(oe -> oe.getExtraOption().getLabel())
+            .toList();
+
     log.info("{}번 주문서를 성공적으로 조회했습니다.", orderId);
 
-    return toDetailOrderResponse(order, orderCake);
+    return toDetailOrderResponse(order, orderCake, extraOptions);
   }
 
   @Transactional(readOnly = true)
@@ -121,12 +134,39 @@ public class OrderService {
                             return new CustomException(OrderErrorCode.ORDER_NOT_FOUND);
                           });
 
-              return toDetailOrderResponse(order, orderCake);
+              List<String> extraOptions =
+                  orderExtraRepository.findByOrderId(order.getId()).stream()
+                      .map(oe -> oe.getExtraOption().getLabel())
+                      .toList();
+
+              return toDetailOrderResponse(order, orderCake, extraOptions);
             })
         .toList();
   }
 
-  private DetailOrderResponse toDetailOrderResponse(Order order, OrderCake orderCake) {
+  @Transactional(readOnly = true)
+  public List<DetailOrderResponse> getOrderList() {
+
+    return orderRepository.findAll().stream()
+        .map(
+            order -> {
+              OrderCake orderCake =
+                  orderCakeRepository
+                      .findByOrderId(order.getId())
+                      .orElseThrow(() -> new CustomException(OrderErrorCode.ORDER_NOT_FOUND));
+
+              List<String> extraOptions =
+                  orderExtraRepository.findByOrderId(order.getId()).stream()
+                      .map(oe -> oe.getExtraOption().getLabel())
+                      .toList();
+
+              return toDetailOrderResponse(order, orderCake, extraOptions);
+            })
+        .toList();
+  }
+
+  private DetailOrderResponse toDetailOrderResponse(
+      Order order, OrderCake orderCake, List<String> extraOptions) {
 
     return DetailOrderResponse.builder()
         .orderId(order.getId())
@@ -137,7 +177,8 @@ public class OrderService {
         .cakeCategory(orderCake.getCakeCategory().getLabel())
         .cakeSize(orderCake.getCakeSize().getLabel())
         .cakeFlavor(orderCake.getCakeFlavor().getLabel())
-        .heartCakeOptions(parseHeartCakeOptions(orderCake.getHeartCakeOptions()))
+        .cakeOptions(parseCakeOptions(orderCake.getCakeOptions()))
+        .extraOptions(extraOptions)
         .letteringText(order.getLetteringText())
         .requestNote(order.getRequestNote())
         .referenceImageUrl(order.getReferenceImageUrl())
@@ -156,15 +197,14 @@ public class OrderService {
     order.changeStatus(status);
   }
 
-  // 파싱함수
-  private List<String> parseHeartCakeOptions(String options) {
+  private List<String> parseCakeOptions(String options) {
     if (options == null || options.isBlank()) {
       return List.of();
     }
-
-    return Arrays.stream(options.replace("[", "").replace("]", "").split(","))
+    return java.util.Arrays.stream(options.replace("[", "").replace("]", "").split(","))
         .map(String::trim)
-        .map(opt -> HeartCakeOptions.valueOf(opt).getLabel())
+        .filter(s -> !s.isEmpty())
+        .map(opt -> CakeOption.valueOf(opt).getLabel())
         .toList();
   }
 }
