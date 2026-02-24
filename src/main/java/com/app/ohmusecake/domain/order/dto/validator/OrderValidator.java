@@ -1,5 +1,6 @@
 package com.app.ohmusecake.domain.order.dto.validator;
 
+import java.text.Normalizer;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -52,7 +53,7 @@ public class OrderValidator implements ConstraintValidator<OrderReqeustCheck, Cr
 
     if (cakeSize == null || letteringText == null) return true; // @NotNull에서 따로 처리
 
-    int length = letteringText.trim().length();
+    int length = Normalizer.normalize(letteringText.trim(), Normalizer.Form.NFC).length();
     int max;
     if (cakeSize == CakeSize.MINI || cakeSize == CakeSize.TALL_MINI) {
       max = 13;
@@ -147,6 +148,14 @@ public class OrderValidator implements ConstraintValidator<OrderReqeustCheck, Cr
       addError(context, "pickupDateTime", "픽업 날짜와 시간은 현재 이후여야 합니다");
       return false;
     }
+
+    // 30분 단위 검증
+    int minute = pickupTime.getMinute();
+    if (minute != 0 && minute != 30) {
+      addError(context, "pickupTime", "픽업 시간은 30분 단위로만 선택 가능합니다.");
+      return false;
+    }
+
     //// 영업시간 이외 픽업 불가
     DayOfWeek day = pickupDate.getDayOfWeek();
     LocalTime open, close;
