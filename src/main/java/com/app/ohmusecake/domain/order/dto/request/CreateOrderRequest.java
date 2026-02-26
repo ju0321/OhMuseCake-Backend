@@ -30,12 +30,10 @@ public class CreateOrderRequest {
   private String phone;
 
   @Schema(description = "픽업 날짜", example = "2025-12-04")
-  // @Future()
-  private LocalDate pickupDate;
+  @NotNull private LocalDate pickupDate;
 
   @Schema(description = "픽업 시간", example = "15:00")
-  // @Future()
-  private LocalTime pickupTime;
+  @NotNull private LocalTime pickupTime;
 
   @Schema(description = "케이크 종류", example = "DESIGN")
   @NotNull private CakeCategory cakeCategory;
@@ -44,10 +42,10 @@ public class CreateOrderRequest {
   private List<CakeOption> cakeOptions;
 
   @Schema(description = "케이크 사이즈", example = "SIZE_2")
-  private CakeSize cakeSize;
+  @NotNull private CakeSize cakeSize;
 
   @Schema(description = "케이크 시트 맛", example = "VANILLA")
-  private CakeFlavor cakeFlavor;
+  @NotNull private CakeFlavor cakeFlavor;
 
   @Schema(description = "레터링 문구", example = "생일축하해")
   private String letteringText;
@@ -58,6 +56,6 @@ public class CreateOrderRequest {
   @Schema(description = "디자인 디테일 / 요청사항", example = "꽃 많이 넣어주세요")
   private String requestNote;
 
-  @Schema(description = "참고 이미지 URL", example = "https://example.com/image.jpg")
+  @Schema(description = "참고 이미지 URL", example = "image.jpg")
   private String referenceImageUrl;
 }
