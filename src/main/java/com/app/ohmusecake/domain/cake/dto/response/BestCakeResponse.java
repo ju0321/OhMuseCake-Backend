@@ -1,8 +1,8 @@
 package com.app.ohmusecake.domain.cake.dto.response;
 
 import com.app.ohmusecake.domain.cake.entity.Cake;
+
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -34,5 +34,4 @@ public class BestCakeResponse {
         .isBest(cake.isBest())
         .build();
   }
-
 }

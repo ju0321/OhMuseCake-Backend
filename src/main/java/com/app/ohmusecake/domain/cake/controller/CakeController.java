@@ -1,6 +1,5 @@
 package com.app.ohmusecake.domain.cake.controller;
 
-import com.app.ohmusecake.domain.cake.dto.response.BestCakeResponse;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
@@ -9,6 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.app.ohmusecake.domain.cake.dto.response.BestCakeResponse;
 import com.app.ohmusecake.domain.cake.dto.response.DetailCakeResponse;
 import com.app.ohmusecake.domain.cake.dto.response.SummaryCakeResponse;
 import com.app.ohmusecake.domain.cake.service.CakeService;

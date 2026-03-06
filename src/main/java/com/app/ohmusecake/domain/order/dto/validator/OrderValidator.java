@@ -44,7 +44,7 @@ public class OrderValidator implements ConstraintValidator<OrderReqeustCheck, Cr
     // 픽업 날짜 + 시간 제한
     valid &= validatePickupDateTime(request.getPickupDate(), request.getPickupTime(), context);
 
-    //전화번호 형식 유효성 검사
+    // 전화번호 형식 유효성 검사
     valid &= validatePhone(request.getPhone(), context);
 
     return valid;
@@ -189,7 +189,6 @@ public class OrderValidator implements ConstraintValidator<OrderReqeustCheck, Cr
     }
     return true;
   }
-
 
   /// **** 중복코드 분리 **** ////
   private void addError(ConstraintValidatorContext context, String field, String message) {
