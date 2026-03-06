@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.app.ohmusecake.domain.cake.dto.response.BestCakeResponse;
 import com.app.ohmusecake.domain.cake.dto.response.DetailCakeResponse;
 import com.app.ohmusecake.domain.cake.dto.response.SummaryCakeResponse;
 import com.app.ohmusecake.domain.cake.entity.Cake;
@@ -32,9 +33,9 @@ public class CakeService {
 
   // mainpage-best 상품 summary 조회 api (best 상품 list로 보기)
   @Transactional(readOnly = true)
-  public List<SummaryCakeResponse> getBestCakeSummaries() {
+  public List<BestCakeResponse> getBestCakeSummaries() {
     return cakeRepository.findByIsBestTrueAndIsVisibleTrue().stream()
-        .map(SummaryCakeResponse::from)
+        .map(BestCakeResponse::from)
         .toList();
   }
 

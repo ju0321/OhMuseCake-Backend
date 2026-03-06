@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.app.ohmusecake.domain.cake.dto.response.BestCakeResponse;
 import com.app.ohmusecake.domain.cake.dto.response.DetailCakeResponse;
 import com.app.ohmusecake.domain.cake.dto.response.SummaryCakeResponse;
 import com.app.ohmusecake.domain.cake.service.CakeService;
@@ -27,7 +28,7 @@ public class CakeController {
 
   @Operation(summary = "메인화면 베스트 상품 리스트", description = "메인화면에서 베스트 상품 이미지, summary 반환 API")
   @GetMapping(value = "/best")
-  public ResponseEntity<BaseResponse<List<SummaryCakeResponse>>> getBestCakeSummaries() {
+  public ResponseEntity<BaseResponse<List<BestCakeResponse>>> getBestCakeSummaries() {
     return ResponseEntity.status(200)
         .body(
             BaseResponse.success(200, "메인화면 베스트 상품 리스트 반환 성공", cakeService.getBestCakeSummaries()));

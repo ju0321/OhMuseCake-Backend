@@ -44,6 +44,9 @@ public class OrderValidator implements ConstraintValidator<OrderReqeustCheck, Cr
     // 픽업 날짜 + 시간 제한
     valid &= validatePickupDateTime(request.getPickupDate(), request.getPickupTime(), context);
 
+    // 전화번호 형식 유효성 검사
+    valid &= validatePhone(request.getPhone(), context);
+
     return valid;
   }
 
@@ -175,6 +178,15 @@ public class OrderValidator implements ConstraintValidator<OrderReqeustCheck, Cr
       return false;
     }
 
+    return true;
+  }
+
+  private boolean validatePhone(String phone, ConstraintValidatorContext context) {
+    if (phone == null || phone.isBlank()) return true; // @NotNull 따로 처리
+    if (!phone.matches("^01[016789]-\\d{3,4}-\\d{4}$")) {
+      addError(context, "phone", "전화번호 형식이 올바르지 않습니다. (예: 010-1234-5678)");
+      return false;
+    }
     return true;
   }
 

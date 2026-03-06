@@ -24,7 +24,11 @@ public class SummaryCakeResponse {
   private String imageUrl;
 
   public static SummaryCakeResponse from(Cake cake) {
-    return new SummaryCakeResponse(
-        cake.getId(), cake.getCakeCategory().name(), cake.getPrice(), cake.getImageUrl());
+    return SummaryCakeResponse.builder()
+        .cakeId(cake.getId())
+        .cakeCategory(cake.getCakeCategory().name())
+        .price(cake.getPrice())
+        .imageUrl(cake.getImageUrl())
+        .build();
   }
 }

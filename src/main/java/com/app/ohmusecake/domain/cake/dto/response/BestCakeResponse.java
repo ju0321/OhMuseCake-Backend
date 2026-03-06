@@ -8,22 +8,13 @@ import lombok.Getter;
 
 @Getter
 @Builder
-@Schema(title = "CakeDetailResponse : 케이크 상세설명 응답 DTO")
-public class DetailCakeResponse {
+@Schema(title = "베스트 상품 응답 DTO")
+public class BestCakeResponse {
   @Schema(description = "케이크 id", example = "1")
   private Long cakeId;
 
   @Schema(description = "케이크 종류", example = "HEART")
   private String cakeCategory;
-
-  @Schema(description = "케이크 사이즈", example = "SIZE_2")
-  private String cakeSize;
-
-  @Schema(description = "케이크 맛", example = "VANILA")
-  private String cakeFlavor;
-
-  @Schema(description = "케이크 가격", example = "19,000")
-  private int price;
 
   @Schema(description = "케이크 이미지 url", example = "image.jpg")
   private String imageUrl;
@@ -31,15 +22,16 @@ public class DetailCakeResponse {
   @Schema(description = "케이크 설명", example = "-")
   private String description;
 
-  public static DetailCakeResponse from(Cake cake) {
-    return DetailCakeResponse.builder()
+  @Schema(description = "베스트 케이크 여부", example = "-")
+  private boolean isBest = false;
+
+  public static BestCakeResponse from(Cake cake) {
+    return BestCakeResponse.builder()
         .cakeId(cake.getId())
         .cakeCategory(cake.getCakeCategory().name())
-        .cakeSize(cake.getCakeSize().name())
-        .cakeFlavor(cake.getCakeFlavor().name())
-        .price(cake.getPrice())
         .imageUrl(cake.getImageUrl())
         .description(cake.getDescription())
+        .isBest(cake.isBest())
         .build();
   }
 }

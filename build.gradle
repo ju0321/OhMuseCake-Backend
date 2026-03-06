@@ -14,9 +14,8 @@ version = '0.0.1-SNAPSHOT'
 description = 'ohmusecake'
 
 java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
-    }
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
 }
 
 repositories {
@@ -48,7 +47,7 @@ dependencies {
     // Swagger openapi-ui
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.1'
 
-    // Spring Security
+    //Spring Security
     //implementation 'org.springframework.boot:spring-boot-starter-security'
     //testImplementation 'org.springframework.security:spring-security-test'
 
@@ -64,7 +63,7 @@ dependencies {
     implementation "org.locationtech.jts.io:jts-io-common:1.20.0"
 
     // AWS S3
-    implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+    //implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
 
     // Monitoring
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
