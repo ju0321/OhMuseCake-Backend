@@ -3,6 +3,7 @@ package com.app.ohmusecake.domain.cake.dto.response;
 import com.app.ohmusecake.domain.cake.entity.Cake;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -32,13 +33,15 @@ public class DetailCakeResponse {
   private String description;
 
   public static DetailCakeResponse from(Cake cake) {
-    return new DetailCakeResponse(
-        cake.getId(),
-        cake.getCakeCategory().name(),
-        cake.getCakeSize().name(),
-        cake.getCakeFlavor().name(),
-        cake.getPrice(),
-        cake.getImageUrl(),
-        cake.getDescription());
+    return DetailCakeResponse.builder()
+        .cakeId(cake.getId())
+        .cakeCategory(cake.getCakeCategory().name())
+        .cakeSize(cake.getCakeSize().name())
+        .cakeFlavor(cake.getCakeFlavor().name())
+        .price(cake.getPrice())
+        .imageUrl(cake.getImageUrl())
+        .description(cake.getDescription())
+        .build();
   }
+
 }

@@ -1,5 +1,6 @@
 package com.app.ohmusecake.domain.cake.controller;
 
+import com.app.ohmusecake.domain.cake.dto.response.BestCakeResponse;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
@@ -27,7 +28,7 @@ public class CakeController {
 
   @Operation(summary = "메인화면 베스트 상품 리스트", description = "메인화면에서 베스트 상품 이미지, summary 반환 API")
   @GetMapping(value = "/best")
-  public ResponseEntity<BaseResponse<List<SummaryCakeResponse>>> getBestCakeSummaries() {
+  public ResponseEntity<BaseResponse<List<BestCakeResponse>>> getBestCakeSummaries() {
     return ResponseEntity.status(200)
         .body(
             BaseResponse.success(200, "메인화면 베스트 상품 리스트 반환 성공", cakeService.getBestCakeSummaries()));
