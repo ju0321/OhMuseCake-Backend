@@ -9,9 +9,9 @@ name: Java CI with Gradle
 
 on:
   push:
-    branches: [ "develop" ]
+    branches: [ "develop", "main" ]
   pull_request:
-    branches: [ "develop" ]
+    branches: [ "main" ]
 
 jobs:
   build:
@@ -50,7 +50,7 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 
     steps:
     - name: Deploy to EC2
@@ -61,7 +61,7 @@ jobs:
         key: ${{ secrets.EC2_KEY }}
         script: |
           cd ~/OhMuseCake-Backend
-          git pull origin develop
+          git pull origin main
           ./gradlew build -x test
           sudo cp build/libs/ohmusecake-0.0.1-SNAPSHOT.jar /opt/ohmusecake/app.jar
           sudo systemctl restart ohmusecake
