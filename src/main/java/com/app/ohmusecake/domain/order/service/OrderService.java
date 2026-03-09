@@ -122,17 +122,13 @@ public class OrderService {
 
     log.info("전화번호 {}로 {}건의 주문을 조회했습니다.", phone, orders.size());
 
-    return orders.stream()
-        .map(this::buildResponse)
-        .toList();
+    return orders.stream().map(this::buildResponse).toList();
   }
 
   @Transactional(readOnly = true)
   public List<DetailOrderResponse> getOrderList() {
 
-    return orderRepository.findAll().stream()
-        .map(this::buildResponse)
-        .toList();
+    return orderRepository.findAll().stream().map(this::buildResponse).toList();
   }
 
   private DetailOrderResponse toDetailOrderResponse(
@@ -157,13 +153,16 @@ public class OrderService {
   }
 
   private DetailOrderResponse buildResponse(Order order) {
-    OrderCake orderCake = orderCakeRepository.findByOrderId(order.getId())
-        .orElseThrow(() -> new CustomException(OrderErrorCode.ORDER_NOT_FOUND));
-    List<String> extraOptions = orderExtraRepository.findByOrderId(order.getId()).stream()
-        .map(oe -> oe.getExtraOption().getLabel()).toList();
+    OrderCake orderCake =
+        orderCakeRepository
+            .findByOrderId(order.getId())
+            .orElseThrow(() -> new CustomException(OrderErrorCode.ORDER_NOT_FOUND));
+    List<String> extraOptions =
+        orderExtraRepository.findByOrderId(order.getId()).stream()
+            .map(oe -> oe.getExtraOption().getLabel())
+            .toList();
     return toDetailOrderResponse(order, orderCake, extraOptions);
   }
-
 
   @Transactional
   public void changeOrderStatus(Long orderId, OrderStatus status) {
