@@ -117,30 +117,13 @@ public class OrderService {
 
     if (orders.isEmpty()) {
       log.error("전화번호 {}에 대한 주문 내역이 없습니다.", phone);
-      throw new CustomException(OrderErrorCode.ORDER_NOT_FOUND);
+      throw new CustomException(OrderErrorCode.ORDER_PHONE_MISMATCH);
     }
 
     log.info("전화번호 {}로 {}건의 주문을 조회했습니다.", phone, orders.size());
 
     return orders.stream()
-        .map(
-            order -> {
-              OrderCake orderCake =
-                  orderCakeRepository
-                      .findByOrderId(order.getId())
-                      .orElseThrow(
-                          () -> {
-                            log.error("{}번 주문서에 대한 케이크 정보를 찾을 수 없습니다.", order.getId());
-                            return new CustomException(OrderErrorCode.ORDER_NOT_FOUND);
-                          });
-
-              List<String> extraOptions =
-                  orderExtraRepository.findByOrderId(order.getId()).stream()
-                      .map(oe -> oe.getExtraOption().getLabel())
-                      .toList();
-
-              return toDetailOrderResponse(order, orderCake, extraOptions);
-            })
+        .map(this::buildResponse)
         .toList();
   }
 
@@ -148,20 +131,7 @@ public class OrderService {
   public List<DetailOrderResponse> getOrderList() {
 
     return orderRepository.findAll().stream()
-        .map(
-            order -> {
-              OrderCake orderCake =
-                  orderCakeRepository
-                      .findByOrderId(order.getId())
-                      .orElseThrow(() -> new CustomException(OrderErrorCode.ORDER_NOT_FOUND));
-
-              List<String> extraOptions =
-                  orderExtraRepository.findByOrderId(order.getId()).stream()
-                      .map(oe -> oe.getExtraOption().getLabel())
-                      .toList();
-
-              return toDetailOrderResponse(order, orderCake, extraOptions);
-            })
+        .map(this::buildResponse)
         .toList();
   }
 
@@ -186,13 +156,22 @@ public class OrderService {
         .build();
   }
 
+  private DetailOrderResponse buildResponse(Order order) {
+    OrderCake orderCake = orderCakeRepository.findByOrderId(order.getId())
+        .orElseThrow(() -> new CustomException(OrderErrorCode.ORDER_NOT_FOUND));
+    List<String> extraOptions = orderExtraRepository.findByOrderId(order.getId()).stream()
+        .map(oe -> oe.getExtraOption().getLabel()).toList();
+    return toDetailOrderResponse(order, orderCake, extraOptions);
+  }
+
+
   @Transactional
   public void changeOrderStatus(Long orderId, OrderStatus status) {
 
     Order order =
         orderRepository
             .findById(orderId)
-            .orElseThrow(() -> new IllegalArgumentException("Order not found"));
+            .orElseThrow(() -> new CustomException(OrderErrorCode.ORDER_NOT_FOUND));
 
     order.changeStatus(status);
   }
