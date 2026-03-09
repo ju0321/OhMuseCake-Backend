@@ -39,3 +39,6 @@ out/
 # spring config (secrets)
 application.properties
 application-*.properties
+# Frontend (separate repo)
+frontend/
+start.bat

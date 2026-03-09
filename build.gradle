@@ -5,14 +5,17 @@ plugins {
     id 'com.diffplug.spotless' version '6.19.0'
 }
 
-group = 'com.sku'
+ext {
+    springAiVersion = "1.1.2"
+}
+
+group = 'com.app'
 version = '0.0.1-SNAPSHOT'
-description = 'kiosk'
+description = 'ohmusecake'
 
 java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
-    }
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
 }
 
 repositories {
@@ -20,9 +23,12 @@ repositories {
 }
 
 dependencies {
-    // Web
+    // Web , Validation
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    // DevTools
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
     // Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
@@ -41,13 +47,6 @@ dependencies {
     // Swagger openapi-ui
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.1'
 
-    // Spring Security
-    //implementation 'org.springframework.boot:spring-boot-starter-security'
-    //testImplementation 'org.springframework.security:spring-security-test'
-
-    // Crawling
-    //implementation 'org.jsoup:jsoup:1.17.1'
-
     //Image Convert
     implementation "com.sksamuel.scrimage:scrimage-core:4.0.32"
     implementation "com.sksamuel.scrimage:scrimage-webp:4.0.32"
@@ -55,9 +54,6 @@ dependencies {
     // JTS + GeoJSON Reader
     implementation "org.locationtech.jts:jts-core:1.20.0"
     implementation "org.locationtech.jts.io:jts-io-common:1.20.0"
-
-    // AWS S3
-    implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
 
     // Monitoring
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
@@ -84,8 +80,6 @@ spotless {
         trimTrailingWhitespace()
         // 파일 끝에 새로운 라인 추가
         endWithNewline()
-        // 라이선스 헤더 추가
-        licenseHeader '/* \n * Copyright (c) SKU K-IO-SK \n */'
         // 어노테이션 정렬을 일관성 있게 유지
         formatAnnotations()
         // 들여쓰기를 공백 2칸으로 고정
@@ -93,6 +87,10 @@ spotless {
         // 파일 인코딩을 UTF-8로 강제
         encoding 'UTF-8'
     }
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
 }
 
 tasks.named('check') {
@@ -103,6 +101,12 @@ def profile = project.findProperty("profile") ?: "dev"
 
 bootRun {
     systemProperty "spring.profiles.active", profile
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.ai:spring-ai-bom:$springAiVersion"
+    }
 }
 
 tasks.named('bootJar') {
