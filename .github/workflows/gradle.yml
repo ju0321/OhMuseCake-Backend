@@ -60,7 +60,7 @@ jobs:
         username: ${{ secrets.EC2_USERNAME }}
         key: ${{ secrets.EC2_KEY }}
         script: |
-          cd ~/OhMuseCake
+          cd ~/OhMuseCake-Backend
           git pull origin develop
           ./gradlew build -x test
           sudo cp build/libs/ohmusecake-0.0.1-SNAPSHOT.jar /opt/ohmusecake/app.jar
