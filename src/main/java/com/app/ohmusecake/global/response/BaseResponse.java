@@ -1,6 +1,3 @@
-/*
- * Copyright (c) SKU K-IO-SK
- */
 package com.app.ohmusecake.global.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
